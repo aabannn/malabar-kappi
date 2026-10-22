@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Malabar Kaapi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+:root{--bg:#ECEFE9;--card:#F8F9F6;--ink:#13211A;--mute:#5B6B61;--green:#1F4D38;--gold:#C8890A;--line:#CBD3CB;--bad:#A63A2B;--ok:#2B7A4B}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Bricolage Grotesque",system-ui,sans-serif}
+a{color:inherit}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+header{position:sticky;top:0;z-index:5;background:var(--ink);color:#fff;display:flex;align-items:center;gap:1.25rem;padding:.75rem 1.25rem;flex-wrap:wrap}
+header .logo{font-weight:800;font-size:1.35rem;text-decoration:none;margin-right:auto}
+header nav{display:flex;gap:1rem;align-items:center;flex-wrap:wrap}
+header nav a,header nav button{background:none;border:0;color:#fff;text-decoration:none;cursor:pointer;padding:.25rem 0;border-bottom:2px solid transparent}
+header nav a:hover,header nav button:hover{border-color:var(--gold)}
+.badge{background:var(--gold);color:var(--ink);border-radius:99px;padding:0 .5rem;font-size:.8rem;font-weight:800;margin-left:.25rem}
+main{max-width:1100px;margin:0 auto;padding:1.25rem}
+.hero{background:var(--green);color:#fff;padding:3rem 1.5rem;margin:-1.25rem -1.25rem 1.5rem;border-bottom:6px solid var(--gold)}
+.hero h1{font-size:clamp(2.2rem,6vw,4.2rem);line-height:1;margin:0 0 .75rem;font-weight:800;max-width:14ch;letter-spacing:-.02em}
+.hero p{margin:0 0 1.25rem;max-width:46ch;opacity:.9}
+.hero input{width:min(420px,100%);padding:.7rem .9rem;border:0;border-radius:6px}
+.chips{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem}
+.chip{border:1px solid var(--ink);background:none;border-radius:99px;padding:.3rem .9rem;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--ink);color:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;overflow:hidden;display:flex;flex-direction:column}
+.card .img{height:130px;background:var(--green);color:var(--gold);display:grid;place-items:center;font-size:3rem;font-weight:800;background-size:cover;background-position:center}
+.card .body{padding:.9rem;display:flex;flex-direction:column;gap:.35rem;flex:1}
+.card h3{margin:0;font-size:1.05rem}
+.mute{color:var(--mute);font-size:.9rem}
+.price{font-weight:800;font-size:1.15rem}
+.row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.spacer{margin-left:auto}
+.btn{background:var(--ink);color:#fff;border:0;border-radius:6px;padding:.55rem 1rem;cursor:pointer;font-weight:600}
+.btn:hover{background:var(--green)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.alt{background:none;color:var(--ink);border:1px solid var(--ink)}
+.btn.alt:hover{background:var(--ink);color:#fff}
+.btn.sm{padding:.25rem .6rem;font-size:.85rem}
+.btn.bad{background:var(--bad)}
+.low{color:var(--bad);font-weight:600;font-size:.9rem}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:1rem;margin-bottom:1rem}
+h2{font-size:1.6rem;margin:.25rem 0 1rem}
+label{display:block;font-size:.9rem;font-weight:600;margin:.6rem 0 .2rem}
+input,select,textarea{width:100%;padding:.55rem .7rem;border:1px solid var(--line);border-radius:6px;background:#fff}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+table{width:100%;border-collapse:collapse;background:var(--card)}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top;font-size:.95rem}
+.scroll{overflow-x:auto}
+.steps{display:flex;gap:.25rem;margin:.6rem 0}
+.steps span{flex:1;text-align:center;padding:.3rem;border-bottom:4px solid var(--line);font-size:.85rem;color:var(--mute)}
+.steps span.on{border-color:var(--gold);color:var(--ink);font-weight:600}
+.status-x{color:var(--bad);font-weight:800}
+.tabs{display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1rem}
+.stats div{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:1rem}
+.stats b{display:block;font-size:1.8rem}
+dialog{border:0;border-radius:10px;max-width:560px;width:calc(100% - 2rem);padding:1.25rem;background:var(--card);color:var(--ink)}
+dialog::backdrop{background:rgba(19,33,26,.6)}
+#toast{position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:.7rem 1.1rem;border-radius:8px;z-index:20;display:none;max-width:90vw}
+#toast.bad{background:var(--bad)}
+.note{background:#FFF4D6;border:1px solid var(--gold);padding:.7rem;border-radius:6px;margin-bottom:1rem}
+@media(max-width:560px){.two{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:no-preference){.card{transition:transform .15s}.card:hover{transform:translateY(-2px)}}
+</style>
+</head>
+<body>
+<header>
+  <a class="logo" href="#/">Malabar Kaapi</a>
+  <nav id="nav"></nav>
+</header>
+<main id="app"></main>
+<dialog id="dlg"></dialog>
+<div id="toast" role="status"></div>
+
+<script>
+// ====== CONFIG: paste your Supabase anon (public) key here ======
+const SUPABASE_URL = "https://kaueijuxrthehagbtfzc.supabase.co";
+const SUPABASE_KEY = "PASTE_YOUR_ANON_KEY_HERE";
+// ================================================================
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// Product photos are embedded so no separate image files are needed.
+const IMG = {"Classic Filter Blend 80:20": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2MDAgNDAwIj48cmVjdCB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iIzFGNEQzOCIvPjxjaXJjbGUgY3g9IjQ3MCIgY3k9IjkwIiByPSIxNTAiIGZpbGw9IiNFM0IwNEIiIG9wYWNpdHk9Ii4xMiIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDE5MCA1MCkiPjxwYXRoIGQ9Ik0yMCAzMGgyMDBsMjAgNDB2MjUwYTIwIDIwIDAgMCAxLTIwIDIwSDIwYTIwIDIwIDAgMCAxLTIwLTIwVjcweiIgZmlsbD0iI0YxRUJERCIvPjxwYXRoIGQ9Ik0wIDcwaDI0MCIgc3Ryb2tlPSIjMDAwMDAwMjIiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjIwIiB5PSIxMCIgd2lkdGg9IjIwMCIgaGVpZ2h0PSIzMCIgcng9IjYiIGZpbGw9IiNFM0IwNEIiLz48ZWxsaXBzZSBjeD0iMTIwIiBjeT0iMTUwIiByeD0iMzQiIHJ5PSI0NiIgZmlsbD0iIzFGNEQzOCIgdHJhbnNmb3JtPSJyb3RhdGUoLTIwIDEyMCAxNTApIi8+PHBhdGggZD0iTTEwNCAxMTJjMjAgMjAgOCA1MCAyOCA3NiIgc3Ryb2tlPSIjRjFFQkREIiBzdHJva2Utd2lkdGg9IjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjx0ZXh0IHg9IjEyMCIgeT0iMjM1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC1zaXplPSIyNSIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzFGNEQzOCI+RmlsdGVyIEJsZW5kPC90ZXh0Pjx0ZXh0IHg9IjEyMCIgeT0iMjYyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzFGNEQzOCIgb3BhY2l0eT0iLjc1Ij44MDoyMCBjaGljb3J5PC90ZXh0Pjx0ZXh0IHg9IjEyMCIgeT0iMzA1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMyIgZmlsbD0iIzFGNEQzOCIgb3BhY2l0eT0iLjYiPk1hbGFiYXIgS2FhcGk8L3RleHQ+PC9nPjwvc3ZnPg==", "Strong Decoction Blend 70:30": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2MDAgNDAwIj48cmVjdCB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iIzNCMjQxNyIvPjxjaXJjbGUgY3g9IjQ3MCIgY3k9IjkwIiByPSIxNTAiIGZpbGw9IiNEOUE0NDEiIG9wYWNpdHk9Ii4xMiIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDE5MCA1MCkiPjxwYXRoIGQ9Ik0yMCAzMGgyMDBsMjAgNDB2MjUwYTIwIDIwIDAgMCAxLTIwIDIwSDIwYTIwIDIwIDAgMCAxLTIwLTIwVjcweiIgZmlsbD0iI0YxRUJERCIvPjxwYXRoIGQ9Ik0wIDcwaDI0MCIgc3Ryb2tlPSIjMDAwMDAwMjIiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjIwIiB5PSIxMCIgd2lkdGg9IjIwMCIgaGVpZ2h0PSIzMCIgcng9IjYiIGZpbGw9IiNEOUE0NDEiLz48ZWxsaXBzZSBjeD0iMTIwIiBjeT0iMTUwIiByeD0iMzQiIHJ5PSI0NiIgZmlsbD0iIzNCMjQxNyIgdHJhbnNmb3JtPSJyb3RhdGUoLTIwIDEyMCAxNTApIi8+PHBhdGggZD0iTTEwNCAxMTJjMjAgMjAgOCA1MCAyOCA3NiIgc3Ryb2tlPSIjRjFFQkREIiBzdHJva2Utd2lkdGg9IjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjx0ZXh0IHg9IjEyMCIgeT0iMjM1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC1zaXplPSIyNSIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzNCMjQxNyI+U3Ryb25nIERlY29jdGlvbjwvdGV4dD48dGV4dCB4PSIxMjAiIHk9IjI2MiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiMzQjI0MTciIG9wYWNpdHk9Ii43NSI+NzA6MzAgY2hpY29yeTwvdGV4dD48dGV4dCB4PSIxMjAiIHk9IjMwNSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiMzQjI0MTciIG9wYWNpdHk9Ii42Ij5NYWxhYmFyIEthYXBpPC90ZXh0PjwvZz48L3N2Zz4=", "Wayanad Robusta AAA": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2MDAgNDAwIj48cmVjdCB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iIzJFM0IyQSIvPjxjaXJjbGUgY3g9IjQ3MCIgY3k9IjkwIiByPSIxNTAiIGZpbGw9IiNDODg5MEEiIG9wYWNpdHk9Ii4xMiIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDE5MCA1MCkiPjxwYXRoIGQ9Ik0yMCAzMGgyMDBsMjAgNDB2MjUwYTIwIDIwIDAgMCAxLTIwIDIwSDIwYTIwIDIwIDAgMCAxLTIwLTIwVjcweiIgZmlsbD0iI0YxRUJERCIvPjxwYXRoIGQ9Ik0wIDcwaDI0MCIgc3Ryb2tlPSIjMDAwMDAwMjIiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjIwIiB5PSIxMCIgd2lkdGg9IjIwMCIgaGVpZ2h0PSIzMCIgcng9IjYiIGZpbGw9IiNDODg5MEEiLz48ZWxsaXBzZSBjeD0iMTIwIiBjeT0iMTUwIiByeD0iMzQiIHJ5PSI0NiIgZmlsbD0iIzJFM0IyQSIgdHJhbnNmb3JtPSJyb3RhdGUoLTIwIDEyMCAxNTApIi8+PHBhdGggZD0iTTEwNCAxMTJjMjAgMjAgOCA1MCAyOCA3NiIgc3Ryb2tlPSIjRjFFQkREIiBzdHJva2Utd2lkdGg9IjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjx0ZXh0IHg9IjEyMCIgeT0iMjM1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC1zaXplPSIyNSIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzJFM0IyQSI+V2F5YW5hZCBSb2J1c3RhPC90ZXh0Pjx0ZXh0IHg9IjEyMCIgeT0iMjYyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzJFM0IyQSIgb3BhY2l0eT0iLjc1Ij5BQUEgZ3JhZGU8L3RleHQ+PHRleHQgeD0iMTIwIiB5PSIzMDUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjEzIiBmaWxsPSIjMkUzQjJBIiBvcGFjaXR5PSIuNiI+TWFsYWJhciBLYWFwaTwvdGV4dD48L2c+PC9zdmc+", "Chikmagalur-style Peaberry": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2MDAgNDAwIj48cmVjdCB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iIzVBMkUxQiIvPjxjaXJjbGUgY3g9IjQ3MCIgY3k9IjkwIiByPSIxNTAiIGZpbGw9IiNGMkMxNEUiIG9wYWNpdHk9Ii4xMiIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDE5MCA1MCkiPjxwYXRoIGQ9Ik0yMCAzMGgyMDBsMjAgNDB2MjUwYTIwIDIwIDAgMCAxLTIwIDIwSDIwYTIwIDIwIDAgMCAxLTIwLTIwVjcweiIgZmlsbD0iI0YxRUJERCIvPjxwYXRoIGQ9Ik0wIDcwaDI0MCIgc3Ryb2tlPSIjMDAwMDAwMjIiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjIwIiB5PSIxMCIgd2lkdGg9IjIwMCIgaGVpZ2h0PSIzMCIgcng9IjYiIGZpbGw9IiNGMkMxNEUiLz48ZWxsaXBzZSBjeD0iMTIwIiBjeT0iMTUwIiByeD0iMzQiIHJ5PSI0NiIgZmlsbD0iIzVBMkUxQiIgdHJhbnNmb3JtPSJyb3RhdGUoLTIwIDEyMCAxNTApIi8+PHBhdGggZD0iTTEwNCAxMTJjMjAgMjAgOCA1MCAyOCA3NiIgc3Ryb2tlPSIjRjFFQkREIiBzdHJva2Utd2lkdGg9IjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjx0ZXh0IHg9IjEyMCIgeT0iMjM1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC1zaXplPSIyNSIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzVBMkUxQiI+UGVhYmVycnk8L3RleHQ+PHRleHQgeD0iMTIwIiB5PSIyNjIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjE2IiBmaWxsPSIjNUEyRTFCIiBvcGFjaXR5PSIuNzUiPk1lZGl1bSByb2FzdDwvdGV4dD48dGV4dCB4PSIxMjAiIHk9IjMwNSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiM1QTJFMUIiIG9wYWNpdHk9Ii42Ij5NYWxhYmFyIEthYXBpPC90ZXh0PjwvZz48L3N2Zz4=", "Cold Brew Coarse Grind": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2MDAgNDAwIj48cmVjdCB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iIzFEM0I0QSIvPjxjaXJjbGUgY3g9IjQ3MCIgY3k9IjkwIiByPSIxNTAiIGZpbGw9IiM4RkQzRTgiIG9wYWNpdHk9Ii4xMiIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDE5MCA1MCkiPjxwYXRoIGQ9Ik0yMCAzMGgyMDBsMjAgNDB2MjUwYTIwIDIwIDAgMCAxLTIwIDIwSDIwYTIwIDIwIDAgMCAxLTIwLTIwVjcweiIgZmlsbD0iI0YxRUJERCIvPjxwYXRoIGQ9Ik0wIDcwaDI0MCIgc3Ryb2tlPSIjMDAwMDAwMjIiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjIwIiB5PSIxMCIgd2lkdGg9IjIwMCIgaGVpZ2h0PSIzMCIgcng9IjYiIGZpbGw9IiM4RkQzRTgiLz48ZWxsaXBzZSBjeD0iMTIwIiBjeT0iMTUwIiByeD0iMzQiIHJ5PSI0NiIgZmlsbD0iIzFEM0I0QSIgdHJhbnNmb3JtPSJyb3RhdGUoLTIwIDEyMCAxNTApIi8+PHBhdGggZD0iTTEwNCAxMTJjMjAgMjAgOCA1MCAyOCA3NiIgc3Ryb2tlPSIjRjFFQkREIiBzdHJva2Utd2lkdGg9IjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjx0ZXh0IHg9IjEyMCIgeT0iMjM1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC1zaXplPSIyNSIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzFEM0I0QSI+Q29sZCBCcmV3PC90ZXh0Pjx0ZXh0IHg9IjEyMCIgeT0iMjYyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzFEM0I0QSIgb3BhY2l0eT0iLjc1Ij5Db2Fyc2UgZ3JpbmQ8L3RleHQ+PHRleHQgeD0iMTIwIiB5PSIzMDUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjEzIiBmaWxsPSIjMUQzQjRBIiBvcGFjaXR5PSIuNiI+TWFsYWJhciBLYWFwaTwvdGV4dD48L2c+PC9zdmc+", "Kaapi Gift Box": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2MDAgNDAwIj48cmVjdCB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iIzEzMjExQSIvPjxjaXJjbGUgY3g9IjQ3MCIgY3k9IjkwIiByPSIxNTAiIGZpbGw9IiNFM0IwNEIiIG9wYWNpdHk9Ii4xMiIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDE5MCA1MCkiPjxwYXRoIGQ9Ik0yMCAzMGgyMDBsMjAgNDB2MjUwYTIwIDIwIDAgMCAxLTIwIDIwSDIwYTIwIDIwIDAgMCAxLTIwLTIwVjcweiIgZmlsbD0iI0YxRUJERCIvPjxwYXRoIGQ9Ik0wIDcwaDI0MCIgc3Ryb2tlPSIjMDAwMDAwMjIiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjIwIiB5PSIxMCIgd2lkdGg9IjIwMCIgaGVpZ2h0PSIzMCIgcng9IjYiIGZpbGw9IiNFM0IwNEIiLz48ZWxsaXBzZSBjeD0iMTIwIiBjeT0iMTUwIiByeD0iMzQiIHJ5PSI0NiIgZmlsbD0iIzEzMjExQSIgdHJhbnNmb3JtPSJyb3RhdGUoLTIwIDEyMCAxNTApIi8+PHBhdGggZD0iTTEwNCAxMTJjMjAgMjAgOCA1MCAyOCA3NiIgc3Ryb2tlPSIjRjFFQkREIiBzdHJva2Utd2lkdGg9IjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjx0ZXh0IHg9IjEyMCIgeT0iMjM1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC1zaXplPSIyNSIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzEzMjExQSI+S2FhcGkgR2lmdCBCb3g8L3RleHQ+PHRleHQgeD0iMTIwIiB5PSIyNjIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjE2IiBmaWxsPSIjMTMyMTFBIiBvcGFjaXR5PSIuNzUiPjUwMCBnIHNldDwvdGV4dD48dGV4dCB4PSIxMjAiIHk9IjMwNSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiMxMzIxMUEiIG9wYWNpdHk9Ii42Ij5NYWxhYmFyIEthYXBpPC90ZXh0PjwvZz48L3N2Zz4=", "Mysore Nuggets Extra Bold": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2MDAgNDAwIj48cmVjdCB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iIzNCMjQxNyIvPjxjaXJjbGUgY3g9IjQ3MCIgY3k9IjkwIiByPSIxNTAiIGZpbGw9IiNDODg5MEEiIG9wYWNpdHk9Ii4xMiIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDE5MCA1MCkiPjxwYXRoIGQ9Ik0yMCAzMGgyMDBsMjAgNDB2MjUwYTIwIDIwIDAgMCAxLTIwIDIwSDIwYTIwIDIwIDAgMCAxLTIwLTIwVjcweiIgZmlsbD0iI0YxRUJERCIvPjxwYXRoIGQ9Ik0wIDcwaDI0MCIgc3Ryb2tlPSIjMDAwMDAwMjIiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjIwIiB5PSIxMCIgd2lkdGg9IjIwMCIgaGVpZ2h0PSIzMCIgcng9IjYiIGZpbGw9IiNDODg5MEEiLz48ZWxsaXBzZSBjeD0iMTIwIiBjeT0iMTUwIiByeD0iMzQiIHJ5PSI0NiIgZmlsbD0iIzNCMjQxNyIgdHJhbnNmb3JtPSJyb3RhdGUoLTIwIDEyMCAxNTApIi8+PHBhdGggZD0iTTEwNCAxMTJjMjAgMjAgOCA1MCAyOCA3NiIgc3Ryb2tlPSIjRjFFQkREIiBzdHJva2Utd2lkdGg9IjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjx0ZXh0IHg9IjEyMCIgeT0iMjM1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC1zaXplPSIyNSIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzNCMjQxNyI+TXlzb3JlIE51Z2dldHM8L3RleHQ+PHRleHQgeD0iMTIwIiB5PSIyNjIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjE2IiBmaWxsPSIjM0IyNDE3IiBvcGFjaXR5PSIuNzUiPkV4dHJhIGJvbGQ8L3RleHQ+PHRleHQgeD0iMTIwIiB5PSIzMDUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjEzIiBmaWxsPSIjM0IyNDE3IiBvcGFjaXR5PSIuNiI+TWFsYWJhciBLYWFwaTwvdGV4dD48L2c+PC9zdmc+", "Monsooned Malabar AA": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2MDAgNDAwIj48cmVjdCB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iIzFGNEQzOCIvPjxjaXJjbGUgY3g9IjQ3MCIgY3k9IjkwIiByPSIxNTAiIGZpbGw9IiNFM0IwNEIiIG9wYWNpdHk9Ii4xMiIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDE5MCA1MCkiPjxwYXRoIGQ9Ik0yMCAzMGgyMDBsMjAgNDB2MjUwYTIwIDIwIDAgMCAxLTIwIDIwSDIwYTIwIDIwIDAgMCAxLTIwLTIwVjcweiIgZmlsbD0iI0YxRUJERCIvPjxwYXRoIGQ9Ik0wIDcwaDI0MCIgc3Ryb2tlPSIjMDAwMDAwMjIiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjIwIiB5PSIxMCIgd2lkdGg9IjIwMCIgaGVpZ2h0PSIzMCIgcng9IjYiIGZpbGw9IiNFM0IwNEIiLz48ZWxsaXBzZSBjeD0iMTIwIiBjeT0iMTUwIiByeD0iMzQiIHJ5PSI0NiIgZmlsbD0iIzFGNEQzOCIgdHJhbnNmb3JtPSJyb3RhdGUoLTIwIDEyMCAxNTApIi8+PHBhdGggZD0iTTEwNCAxMTJjMjAgMjAgOCA1MCAyOCA3NiIgc3Ryb2tlPSIjRjFFQkREIiBzdHJva2Utd2lkdGg9IjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjx0ZXh0IHg9IjEyMCIgeT0iMjM1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC1zaXplPSIyNSIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzFGNEQzOCI+TW9uc29vbmVkIE1hbGFiYXI8L3RleHQ+PHRleHQgeD0iMTIwIiB5PSIyNjIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjE2IiBmaWxsPSIjMUY0RDM4IiBvcGFjaXR5PSIuNzUiPkFBIGdyYWRlPC90ZXh0Pjx0ZXh0IHg9IjEyMCIgeT0iMzA1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMyIgZmlsbD0iIzFGNEQzOCIgb3BhY2l0eT0iLjYiPk1hbGFiYXIgS2FhcGk8L3RleHQ+PC9nPjwvc3ZnPg==", "Dark Roast French Style": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2MDAgNDAwIj48cmVjdCB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iIzI0MTYxMSIvPjxjaXJjbGUgY3g9IjQ3MCIgY3k9IjkwIiByPSIxNTAiIGZpbGw9IiNEOUE0NDEiIG9wYWNpdHk9Ii4xMiIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDE5MCA1MCkiPjxwYXRoIGQ9Ik0yMCAzMGgyMDBsMjAgNDB2MjUwYTIwIDIwIDAgMCAxLTIwIDIwSDIwYTIwIDIwIDAgMCAxLTIwLTIwVjcweiIgZmlsbD0iI0YxRUJERCIvPjxwYXRoIGQ9Ik0wIDcwaDI0MCIgc3Ryb2tlPSIjMDAwMDAwMjIiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjIwIiB5PSIxMCIgd2lkdGg9IjIwMCIgaGVpZ2h0PSIzMCIgcng9IjYiIGZpbGw9IiNEOUE0NDEiLz48ZWxsaXBzZSBjeD0iMTIwIiBjeT0iMTUwIiByeD0iMzQiIHJ5PSI0NiIgZmlsbD0iIzI0MTYxMSIgdHJhbnNmb3JtPSJyb3RhdGUoLTIwIDEyMCAxNTApIi8+PHBhdGggZD0iTTEwNCAxMTJjMjAgMjAgOCA1MCAyOCA3NiIgc3Ryb2tlPSIjRjFFQkREIiBzdHJva2Utd2lkdGg9IjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjx0ZXh0IHg9IjEyMCIgeT0iMjM1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC1zaXplPSIyNSIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzI0MTYxMSI+RGFyayBSb2FzdDwvdGV4dD48dGV4dCB4PSIxMjAiIHk9IjI2MiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiMyNDE2MTEiIG9wYWNpdHk9Ii43NSI+RnJlbmNoIHN0eWxlPC90ZXh0Pjx0ZXh0IHg9IjEyMCIgeT0iMzA1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMyIgZmlsbD0iIzI0MTYxMSIgb3BhY2l0eT0iLjYiPk1hbGFiYXIgS2FhcGk8L3RleHQ+PC9nPjwvc3ZnPg==", "Decaf Arabica": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2MDAgNDAwIj48cmVjdCB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iIzJFNEE1QSIvPjxjaXJjbGUgY3g9IjQ3MCIgY3k9IjkwIiByPSIxNTAiIGZpbGw9IiNGMkMxNEUiIG9wYWNpdHk9Ii4xMiIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDE5MCA1MCkiPjxwYXRoIGQ9Ik0yMCAzMGgyMDBsMjAgNDB2MjUwYTIwIDIwIDAgMCAxLTIwIDIwSDIwYTIwIDIwIDAgMCAxLTIwLTIwVjcweiIgZmlsbD0iI0YxRUJERCIvPjxwYXRoIGQ9Ik0wIDcwaDI0MCIgc3Ryb2tlPSIjMDAwMDAwMjIiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjIwIiB5PSIxMCIgd2lkdGg9IjIwMCIgaGVpZ2h0PSIzMCIgcng9IjYiIGZpbGw9IiNGMkMxNEUiLz48ZWxsaXBzZSBjeD0iMTIwIiBjeT0iMTUwIiByeD0iMzQiIHJ5PSI0NiIgZmlsbD0iIzJFNEE1QSIgdHJhbnNmb3JtPSJyb3RhdGUoLTIwIDEyMCAxNTApIi8+PHBhdGggZD0iTTEwNCAxMTJjMjAgMjAgOCA1MCAyOCA3NiIgc3Ryb2tlPSIjRjFFQkREIiBzdHJva2Utd2lkdGg9IjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjx0ZXh0IHg9IjEyMCIgeT0iMjM1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC1zaXplPSIyNSIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzJFNEE1QSI+RGVjYWYgQXJhYmljYTwvdGV4dD48dGV4dCB4PSIxMjAiIHk9IjI2MiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiMyRTRBNUEiIG9wYWNpdHk9Ii43NSI+U2luZ2xlIGVzdGF0ZTwvdGV4dD48dGV4dCB4PSIxMjAiIHk9IjMwNSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiMyRTRBNUEiIG9wYWNpdHk9Ii42Ij5NYWxhYmFyIEthYXBpPC90ZXh0PjwvZz48L3N2Zz4=", "Jaggery Kaapi Premix": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2MDAgNDAwIj48cmVjdCB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iIzZCM0ExRSIvPjxjaXJjbGUgY3g9IjQ3MCIgY3k9IjkwIiByPSIxNTAiIGZpbGw9IiNGNEQ1OEQiIG9wYWNpdHk9Ii4xMiIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDE5MCA1MCkiPjxwYXRoIGQ9Ik0yMCAzMGgyMDBsMjAgNDB2MjUwYTIwIDIwIDAgMCAxLTIwIDIwSDIwYTIwIDIwIDAgMCAxLTIwLTIwVjcweiIgZmlsbD0iI0YxRUJERCIvPjxwYXRoIGQ9Ik0wIDcwaDI0MCIgc3Ryb2tlPSIjMDAwMDAwMjIiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjIwIiB5PSIxMCIgd2lkdGg9IjIwMCIgaGVpZ2h0PSIzMCIgcng9IjYiIGZpbGw9IiNGNEQ1OEQiLz48ZWxsaXBzZSBjeD0iMTIwIiBjeT0iMTUwIiByeD0iMzQiIHJ5PSI0NiIgZmlsbD0iIzZCM0ExRSIgdHJhbnNmb3JtPSJyb3RhdGUoLTIwIDEyMCAxNTApIi8+PHBhdGggZD0iTTEwNCAxMTJjMjAgMjAgOCA1MCAyOCA3NiIgc3Ryb2tlPSIjRjFFQkREIiBzdHJva2Utd2lkdGg9IjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjx0ZXh0IHg9IjEyMCIgeT0iMjM1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC1zaXplPSIyNSIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzZCM0ExRSI+S2FhcGkgUHJlbWl4PC90ZXh0Pjx0ZXh0IHg9IjEyMCIgeT0iMjYyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzZCM0ExRSIgb3BhY2l0eT0iLjc1Ij5XaXRoIGphZ2dlcnk8L3RleHQ+PHRleHQgeD0iMTIwIiB5PSIzMDUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjEzIiBmaWxsPSIjNkIzQTFFIiBvcGFjaXR5PSIuNiI+TWFsYWJhciBLYWFwaTwvdGV4dD48L2c+PC9zdmc+", "Sampler Trio": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2MDAgNDAwIj48cmVjdCB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iIzEzMjExQSIvPjxjaXJjbGUgY3g9IjQ3MCIgY3k9IjkwIiByPSIxNTAiIGZpbGw9IiNDODg5MEEiIG9wYWNpdHk9Ii4xMiIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDE5MCA1MCkiPjxwYXRoIGQ9Ik0yMCAzMGgyMDBsMjAgNDB2MjUwYTIwIDIwIDAgMCAxLTIwIDIwSDIwYTIwIDIwIDAgMCAxLTIwLTIwVjcweiIgZmlsbD0iI0YxRUJERCIvPjxwYXRoIGQ9Ik0wIDcwaDI0MCIgc3Ryb2tlPSIjMDAwMDAwMjIiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjIwIiB5PSIxMCIgd2lkdGg9IjIwMCIgaGVpZ2h0PSIzMCIgcng9IjYiIGZpbGw9IiNDODg5MEEiLz48ZWxsaXBzZSBjeD0iMTIwIiBjeT0iMTUwIiByeD0iMzQiIHJ5PSI0NiIgZmlsbD0iIzEzMjExQSIgdHJhbnNmb3JtPSJyb3RhdGUoLTIwIDEyMCAxNTApIi8+PHBhdGggZD0iTTEwNCAxMTJjMjAgMjAgOCA1MCAyOCA3NiIgc3Ryb2tlPSIjRjFFQkREIiBzdHJva2Utd2lkdGg9IjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjx0ZXh0IHg9IjEyMCIgeT0iMjM1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC1zaXplPSIyNSIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzEzMjExQSI+U2FtcGxlciBUcmlvPC90ZXh0Pjx0ZXh0IHg9IjEyMCIgeT0iMjYyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzEzMjExQSIgb3BhY2l0eT0iLjc1Ij4zIHggMTAwIGc8L3RleHQ+PHRleHQgeD0iMTIwIiB5PSIzMDUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjEzIiBmaWxsPSIjMTMyMTFBIiBvcGFjaXR5PSIuNiI+TWFsYWJhciBLYWFwaTwvdGV4dD48L2c+PC9zdmc+"};
+const imgFor = p => /^https?:/.test(p.image_url||"") ? p.image_url : (IMG[p.name]||"");
+const S = {user:null, profile:null, cats:[], prods:[], cart:[], cartId:null, cat:"all", q:"", tab:"orders"};
+const $ = s => document.querySelector(s);
+const e = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const inr = n => "₹" + Number(n).toLocaleString("en-IN");
+const isAdmin = () => S.profile?.role === "admin";
+const verified = () => !!S.user?.email_confirmed_at;
+
+function toast(m, bad){const t=$("#toast");t.textContent=m;t.className=bad?"bad":"";t.style.display="block";clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display="none",3500)}
+async function run(p, ok){const {data,error}=await p; if(error){toast(error.message,true);return null} if(ok)toast(ok); return data ?? true}
+
+// ---------- boot ----------
+async function boot(){
+  const [c,p] = await Promise.all([
+    sb.from("categories").select("*").order("name"),
+    sb.from("products").select("*").eq("is_active",true).order("name")]);
+  S.cats=c.data||[]; S.prods=p.data||[]; S.profile=null; S.cart=[]; S.cartId=null;
+  if(S.user){
+    const {data:pr}=await sb.from("profiles").select("*").eq("id",S.user.id).maybeSingle(); S.profile=pr;
+    const {data:ct}=await sb.from("carts").select("cart_id").eq("customer_id",S.user.id).maybeSingle(); S.cartId=ct?.cart_id;
+    await loadCart();
+  }
+  nav();
+}
+async function loadCart(){
+  if(!S.cartId){S.cart=[];return}
+  const {data}=await sb.from("cart_items").select("quantity,products(*)").eq("cart_id",S.cartId).order("product_id");
+  S.cart=(data||[]).filter(i=>i.products);
+}
+function nav(){
+  const n=S.cart.reduce((a,i)=>a+i.quantity,0);
+  $("#nav").innerHTML=`<a href="#/">Shop</a>`+
+   (S.user?`<a href="#/cart">Cart${n?`<span class="badge">${n}</span>`:""}</a><a href="#/orders">My orders</a>`:"")+
+   (isAdmin()?`<a href="#/admin">Admin</a>`:"")+
+   (S.user?`<button id="out">Log out</button>`:`<a href="#/login">Log in</a>`);
+  const o=$("#out"); if(o)o.onclick=async()=>{await sb.auth.signOut(); location.hash="#/"};
+}
+
+// ---------- router ----------
+async function route(){
+  const r=location.hash||"#/"; const need=()=>{if(!S.user){location.hash="#/login";return true}};
+  if(r==="#/login") return authView();
+  if(r==="#/cart"){if(need())return; return cartView()}
+  if(r==="#/checkout"){if(need())return; return checkoutView()}
+  if(r==="#/orders"){if(need())return; return ordersView()}
+  if(r==="#/admin"){if(need())return; if(!isAdmin()){location.hash="#/";return} return adminView()}
+  shopView();
+}
+window.addEventListener("hashchange",route);
+
+// ---------- shop ----------
+function shopView(){
+  $("#app").innerHTML=`
+  <section class="hero"><h1>Coffee ground in Kerala. At your door.</h1>
+  <p>Filter blends and single-estate powders, roasted in small batches and packed to order.</p>
+  <input id="q" type="search" placeholder="Search coffee" aria-label="Search coffee" value="${e(S.q)}"></section>
+  <div class="chips" id="chips"></div><div class="grid" id="grid"></div>`;
+  $("#q").oninput=ev=>{S.q=ev.target.value;grid()};
+  chips(); grid();
+}
+function chips(){
+  const all=[{category_id:"all",name:"All"},...S.cats];
+  $("#chips").innerHTML=all.map(c=>`<button class="chip" aria-pressed="${S.cat==c.category_id}" data-c="${c.category_id}">${e(c.name)}</button>`).join("");
+  document.querySelectorAll(".chip").forEach(b=>b.onclick=()=>{S.cat=b.dataset.c;chips();grid()});
+}
+function grid(){
+  const l=S.prods.filter(p=>(S.cat==="all"||p.category_id==S.cat)&&p.name.toLowerCase().includes(S.q.toLowerCase()));
+  $("#grid").innerHTML=l.length?l.map(p=>`<div class="card">
+   <div class="img" role="img" aria-label="${e(p.name)}" ${imgFor(p)?`style="background-image:url('${imgFor(p)}')"`:""}>${imgFor(p)?"":e(p.name[0])}</div>
+   <div class="body"><h3>${e(p.name)}</h3><span class="mute">${e(S.cats.find(c=>c.category_id==p.category_id)?.name||"")}</span>
+   <div class="price">${inr(p.price)}</div>
+   ${p.stock_quantity===0?`<span class="low">Out of stock</span>`:p.stock_quantity<=5?`<span class="low">Only ${p.stock_quantity} left</span>`:`<span class="mute">In stock</span>`}
+   <div class="row spacer0" style="margin-top:auto"><button class="btn" data-add="${p.product_id}" ${p.stock_quantity===0?"disabled":""}>Add to cart</button>
+   <button class="btn alt" data-view="${p.product_id}">Details</button></div></div></div>`).join(""):`<p>No coffee matches that search. Clear the search or pick another category.</p>`;
+  document.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>addToCart(+b.dataset.add));
+  document.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>productDialog(+b.dataset.view));
+}
+async function addToCart(pid){
+  if(!S.user){location.hash="#/login";return}
+  const p=S.prods.find(x=>x.product_id===pid); const cur=S.cart.find(i=>i.products.product_id===pid)?.quantity||0;
+  if(cur+1>p.stock_quantity){toast("No more stock available for this item",true);return}
+  if(await run(sb.from("cart_items").upsert({cart_id:S.cartId,product_id:pid,quantity:cur+1}),"Added to cart")){await loadCart();nav()}
+}
+async function productDialog(pid){
+  const p=S.prods.find(x=>x.product_id===pid);
+  const {data:rv}=await sb.from("reviews").select("*").eq("product_id",pid).order("created_at",{ascending:false});
+  const avg=rv?.length?(rv.reduce((a,r)=>a+r.rating,0)/rv.length).toFixed(1):null;
+  const d=$("#dlg");
+  d.innerHTML=`${imgFor(p)?`<img src="${imgFor(p)}" alt="${e(p.name)}" style="width:100%;border-radius:8px;margin-bottom:.75rem">`:""}<h2 style="margin-top:0">${e(p.name)}</h2><p>${e(p.description)}</p>
+   <p class="price">${inr(p.price)}</p><h3>Reviews ${avg?`(${avg} / 5 from ${rv.length})`:""}</h3>
+   ${rv?.length?rv.map(r=>`<p><b>${"★".repeat(r.rating)}${"☆".repeat(5-r.rating)}</b> ${e(r.reviewer_name||"Customer")}<br>${e(r.comment)}</p>`).join(""):`<p class="mute">No reviews yet.</p>`}
+   ${S.user?`<label for="rt">Your rating</label><select id="rt">${[5,4,3,2,1].map(n=>`<option>${n}</option>`).join("")}</select>
+   <label for="rc">Comment</label><textarea id="rc" rows="2"></textarea>
+   <div class="row" style="margin-top:.75rem"><button class="btn" id="rs">Post review</button>`:`<p><a href="#/login" id="lg">Log in</a> to write a review.</p><div class="row">`}
+   <button class="btn alt spacer" id="cl">Close</button></div>`;
+  d.showModal(); $("#cl").onclick=()=>d.close();
+  const lg=$("#lg"); if(lg)lg.onclick=()=>d.close();
+  const rs=$("#rs"); if(rs)rs.onclick=async()=>{
+    const ok=await run(sb.from("reviews").upsert({customer_id:S.user.id,product_id:pid,reviewer_name:S.profile?.full_name,rating:+$("#rt").value,comment:$("#rc").value},{onConflict:"customer_id,product_id"}),"Review saved");
+    if(ok){d.close();productDialog(pid)}};
+}
+
+// ---------- auth ----------
+function authView(){
+  if(S.user){location.hash="#/";return}
+  $("#app").innerHTML=`<div class="two" style="align-items:start">
+  <form class="panel" id="lf"><h2>Log in</h2><label for="le">Email</label><input id="le" type="email" required>
+   <label for="lp">Password</label><input id="lp" type="password" required><p><button class="btn">Log in</button></p></form>
+  <form class="panel" id="rf"><h2>Create account</h2><label for="rn">Full name</label><input id="rn" required>
+   <label for="rph">Phone</label><input id="rph" type="tel" required><label for="re">Email</label><input id="re" type="email" required>
+   <label for="rp">Password (6+ characters)</label><input id="rp" type="password" minlength="6" required>
+   <p><button class="btn">Register</button></p></form></div>`;
+  $("#lf").onsubmit=async ev=>{ev.preventDefault();
+    const {error}=await sb.auth.signInWithPassword({email:$("#le").value,password:$("#lp").value});
+    if(error)toast(/confirm/i.test(error.message)?"Verify your email first. Check your inbox for the link.":error.message,true);else location.hash="#/"};
+  $("#rf").onsubmit=async ev=>{ev.preventDefault();
+    const {error}=await sb.auth.signUp({email:$("#re").value,password:$("#rp").value,options:{data:{full_name:$("#rn").value,phone:$("#rph").value},emailRedirectTo:location.origin+location.pathname}});
+    if(error)toast(error.message,true);else{$("#rf").innerHTML=`<h2>Check your email</h2><p>We sent a verification link to ${e($("#re").value)}. Open it, then log in. You can place orders once your email is verified.</p>`}};
+}
+
+// ---------- cart ----------
+function cartView(){
+  const tot=S.cart.reduce((a,i)=>a+i.quantity*i.products.price,0);
+  $("#app").innerHTML=`<h2>Your cart</h2>`+(S.cart.length?`<div class="scroll"><table><tr><th>Item</th><th>Price</th><th>Quantity</th><th>Subtotal</th><th></th></tr>
+  ${S.cart.map(i=>`<tr><td>${imgFor(i.products)?`<img src="${imgFor(i.products)}" alt="" width="64" style="vertical-align:middle;border-radius:4px;margin-right:.6rem">`:""}${e(i.products.name)}${i.quantity>i.products.stock_quantity?`<br><span class="low">Only ${i.products.stock_quantity} in stock</span>`:""}</td><td>${inr(i.products.price)}</td>
+  <td><div class="row"><button class="btn alt sm" data-q="${i.products.product_id}" data-d="-1" aria-label="Decrease">−</button>${i.quantity}<button class="btn alt sm" data-q="${i.products.product_id}" data-d="1" aria-label="Increase">+</button></div></td>
+  <td>${inr(i.quantity*i.products.price)}</td><td><button class="btn alt sm" data-rm="${i.products.product_id}">Remove</button></td></tr>`).join("")}</table></div>
+  <div class="row" style="margin-top:1rem"><span class="price">Total ${inr(tot)}</span><a class="btn spacer" href="#/checkout" style="text-decoration:none">Go to checkout</a></div>`
+  :`<p>Your cart is empty. <a href="#/">Browse the coffee</a>.</p>`);
+  document.querySelectorAll("[data-q]").forEach(b=>b.onclick=async()=>{
+    const it=S.cart.find(i=>i.products.product_id==b.dataset.q),n=it.quantity+ +b.dataset.d;
+    if(n>it.products.stock_quantity){toast("No more stock available",true);return}
+    await run(n<1?sb.from("cart_items").delete().match({cart_id:S.cartId,product_id:it.products.product_id}):sb.from("cart_items").update({quantity:n}).match({cart_id:S.cartId,product_id:it.products.product_id}));
+    await loadCart();nav();cartView()});
+  document.querySelectorAll("[data-rm]").forEach(b=>b.onclick=async()=>{
+    await run(sb.from("cart_items").delete().match({cart_id:S.cartId,product_id:+b.dataset.rm}));await loadCart();nav();cartView()});
+}
+
+// ---------- checkout ----------
+async function checkoutView(){
+  if(!S.cart.length){location.hash="#/cart";return}
+  const {data:ad}=await sb.from("addresses").select("*").eq("customer_id",S.user.id);
+  const tot=S.cart.reduce((a,i)=>a+i.quantity*i.products.price,0);
+  $("#app").innerHTML=`<h2>Checkout</h2>${verified()?"":`<div class="note">Verify your email to place orders. Open the link we sent to ${e(S.user.email)}, then reload this page.</div>`}
+  <div class="panel"><h3 style="margin-top:0">Delivery address</h3>
+  ${ad?.length?ad.map((a,i)=>`<label class="row" style="font-weight:400"><input type="radio" name="ad" value="${a.address_id}" style="width:auto" ${i===0?"checked":""}>${e(a.line1)}, ${e(a.city)}, ${e(a.state)} ${e(a.pincode)}</label>`).join(""):`<p class="mute">No saved address yet. Add one below.</p>`}
+  <details ${ad?.length?"":"open"}><summary>Add a new address</summary>
+   <label for="a1">Address</label><input id="a1"><div class="two"><div><label for="a2">City</label><input id="a2"></div><div><label for="a3">State</label><input id="a3" value="Kerala"></div></div>
+   <label for="a4">PIN code</label><input id="a4" inputmode="numeric" pattern="[0-9]{6}"><p><button class="btn alt" id="sa">Save address</button></p></details></div>
+  <div class="panel"><h3 style="margin-top:0">Payment method</h3>
+   <label class="row" style="font-weight:400"><input type="radio" name="pm" value="COD" style="width:auto" checked>Cash on delivery</label>
+   <label class="row" style="font-weight:400"><input type="radio" name="pm" value="UPI" style="width:auto">UPI (demo, marked paid)</label>
+   <label class="row" style="font-weight:400"><input type="radio" name="pm" value="Card" style="width:auto">Card (demo, marked paid)</label></div>
+  <div class="row"><span class="price">Total ${inr(tot)}</span><button class="btn spacer" id="po" ${verified()&&ad?.length?"":"disabled"}>Place order</button></div>`;
+  $("#sa").onclick=async()=>{
+    const v=[1,2,3,4].map(i=>$("#a"+i).value.trim()); if(v.some(x=>!x)){toast("Fill in every address field",true);return}
+    if(await run(sb.from("addresses").insert({customer_id:S.user.id,line1:v[0],city:v[1],state:v[2],pincode:v[3]}),"Address saved"))checkoutView()};
+  $("#po").onclick=async()=>{
+    const a=document.querySelector("[name=ad]:checked")?.value; if(!a){toast("Choose a delivery address",true);return}
+    $("#po").disabled=true;
+    const id=await run(sb.rpc("place_order",{p_address_id:+a,p_method:document.querySelector("[name=pm]:checked").value}));
+    if(id){toast("Order #"+id+" placed");await boot();location.hash="#/orders"}else $("#po").disabled=false};
+}
+
+// ---------- orders ----------
+const STEPS=["Placed","Shipped","Delivered"];
+async function ordersView(){
+  const {data}=await sb.from("orders").select("*,order_items(quantity,unit_price,products(name)),payments(method,status),addresses(line1,city,pincode)").eq("customer_id",S.user.id).order("created_at",{ascending:false});
+  $("#app").innerHTML=`<h2>My orders</h2>`+(data?.length?data.map(o=>`<div class="panel"><div class="row"><b>Order #${o.order_id}</b>
+   <span class="mute">${new Date(o.created_at).toLocaleDateString("en-IN")}</span><b class="spacer">${inr(o.total)}</b></div>
+   ${o.status==="Cancelled"?`<p class="status-x">Cancelled</p>`:`<div class="steps">${STEPS.map((s,i)=>`<span class="${i<=STEPS.indexOf(o.status)?"on":""}">${s}</span>`).join("")}</div>`}
+   <ul>${o.order_items.map(i=>`<li>${i.quantity} × ${e(i.products.name)} at ${inr(i.unit_price)}</li>`).join("")}</ul>
+   <p class="mute">Payment: ${e(o.payments?.[0]?.method||o.payments?.method||"")} (${e(o.payments?.[0]?.status||o.payments?.status||"")}). Deliver to ${e(o.addresses?.line1)}, ${e(o.addresses?.city)} ${e(o.addresses?.pincode)}</p>
+   ${o.status==="Placed"?`<button class="btn bad sm" data-cx="${o.order_id}">Cancel order</button>`:""}</div>`).join(""):`<p>You have no orders yet. <a href="#/">Start shopping</a>.</p>`);
+  document.querySelectorAll("[data-cx]").forEach(b=>b.onclick=async()=>{
+    if(!confirm("Cancel this order?"))return;
+    if(await run(sb.rpc("cancel_order",{p_order:+b.dataset.cx}),"Order cancelled")){await boot();ordersView()}});
+}
+
+// ---------- admin ----------
+async function adminView(){
+  $("#app").innerHTML=`<h2>Admin</h2><div class="tabs">${[["orders","Orders"],["products","Products"],["cats","Categories"],["report","Sales report"]].map(([k,l])=>`<button class="chip" aria-pressed="${S.tab===k}" data-t="${k}">${l}</button>`).join("")}</div><div id="tb"></div>`;
+  document.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{S.tab=b.dataset.t;adminView()});
+  ({orders:admOrders,products:admProducts,cats:admCats,report:admReport})[S.tab]();
+}
+async function admOrders(){
+  const {data}=await sb.from("orders").select("*,profiles(full_name,phone),order_items(quantity,products(name)),payments(method,status),addresses(line1,city,pincode)").order("created_at",{ascending:false});
+  $("#tb").innerHTML=`<div class="scroll"><table><tr><th>#</th><th>Customer</th><th>Items</th><th>Total</th><th>Payment</th><th>Status</th></tr>`+(data||[]).map(o=>{
+   const pay=Array.isArray(o.payments)?o.payments[0]:o.payments;
+   return `<tr><td>${o.order_id}</td><td>${e(o.profiles?.full_name)}<br><span class="mute">${e(o.profiles?.phone)}<br>${e(o.addresses?.line1)}, ${e(o.addresses?.city)} ${e(o.addresses?.pincode)}</span></td>
+   <td>${o.order_items.map(i=>`${i.quantity} × ${e(i.products.name)}`).join("<br>")}</td><td>${inr(o.total)}</td>
+   <td>${e(pay?.method)}<br>${pay?`<select data-pay="${o.order_id}">${["Pending","Paid","Refunded"].map(s=>`<option ${s===pay.status?"selected":""}>${s}</option>`).join("")}</select>`:""}</td>
+   <td><select data-st="${o.order_id}">${["Placed","Shipped","Delivered","Cancelled"].map(s=>`<option ${s===o.status?"selected":""}>${s}</option>`).join("")}</select></td></tr>`}).join("")+`</table></div>`;
+  document.querySelectorAll("[data-st]").forEach(s=>s.onchange=async()=>{await run(sb.from("orders").update({status:s.value}).eq("order_id",s.dataset.st),"Order updated");admOrders()});
+  document.querySelectorAll("[data-pay]").forEach(s=>s.onchange=async()=>{await run(sb.from("payments").update({status:s.value}).eq("order_id",s.dataset.pay),"Payment updated")});
+}
+async function admProducts(){
+  const {data}=await sb.from("products").select("*").order("product_id");
+  $("#tb").innerHTML=`<form class="panel" id="pf"><h3 style="margin-top:0" id="pt">Add product</h3><input type="hidden" id="pid">
+   <div class="two"><div><label for="pn">Name</label><input id="pn" required></div><div><label for="pc">Category</label><select id="pc" required>${S.cats.map(c=>`<option value="${c.category_id}">${e(c.name)}</option>`).join("")}</select></div>
+   <div><label for="pp">Price (₹)</label><input id="pp" type="number" min="0" step="0.01" required></div><div><label for="ps">Stock quantity</label><input id="ps" type="number" min="0" required></div></div>
+   <label for="pd">Description</label><textarea id="pd" rows="2"></textarea><label for="pfile">Upload photo (optional)</label><input id="pfile" type="file" accept="image/*">
+   <label for="pi">Or image URL</label><input id="pi">
+   <p class="row"><button class="btn">Save product</button><button type="button" class="btn alt" id="pr">Clear</button></p></form>
+   <div class="scroll"><table><tr><th>Name</th><th>Price</th><th>Stock</th><th>Visible</th><th></th></tr>${(data||[]).map(p=>`<tr><td>${e(p.name)}</td><td>${inr(p.price)}</td><td>${p.stock_quantity}</td><td>${p.is_active?"Yes":"Hidden"}</td>
+   <td class="row"><button class="btn alt sm" data-ed="${p.product_id}">Edit</button><button class="btn alt sm" data-hd="${p.product_id}">${p.is_active?"Hide":"Show"}</button></td></tr>`).join("")}</table></div>`;
+  const clr=()=>{$("#pf").reset();$("#pid").value="";$("#pt").textContent="Add product"};
+  $("#pr").onclick=clr;
+  document.querySelectorAll("[data-ed]").forEach(b=>b.onclick=()=>{const p=data.find(x=>x.product_id==b.dataset.ed);
+    $("#pid").value=p.product_id;$("#pn").value=p.name;$("#pc").value=p.category_id;$("#pp").value=p.price;$("#ps").value=p.stock_quantity;$("#pd").value=p.description||"";$("#pi").value=p.image_url||"";$("#pt").textContent="Edit product";scrollTo(0,0)});
+  document.querySelectorAll("[data-hd]").forEach(b=>b.onclick=async()=>{const p=data.find(x=>x.product_id==b.dataset.hd);
+    await run(sb.from("products").update({is_active:!p.is_active}).eq("product_id",p.product_id),p.is_active?"Product hidden":"Product visible");admProducts()});
+  $("#pf").onsubmit=async ev=>{ev.preventDefault();
+    const row={name:$("#pn").value,category_id:+$("#pc").value,price:+$("#pp").value,stock_quantity:+$("#ps").value,description:$("#pd").value,image_url:$("#pi").value||null};
+    const id=$("#pid").value, f=$("#pfile").files[0];
+    if(f){
+      const path=Date.now()+"-"+f.name.replace(/[^\w.-]/g,"_");
+      const up=await sb.storage.from("product-images").upload(path,f);
+      if(up.error){toast(up.error.message,true);return}
+      row.image_url=sb.storage.from("product-images").getPublicUrl(path).data.publicUrl;
+    }
+    if(await run(id?sb.from("products").update(row).eq("product_id",id):sb.from("products").insert(row),"Product saved")){await boot();admProducts()}};
+}
+async function admCats(){
+  $("#tb").innerHTML=`<form class="panel row" id="cf"><input id="cn" placeholder="New category name" required style="flex:1"><button class="btn">Add category</button></form>
+   <table>${S.cats.map(c=>`<tr><td>${e(c.name)}</td><td><button class="btn alt sm" data-rn="${c.category_id}">Rename</button></td></tr>`).join("")}</table>`;
+  $("#cf").onsubmit=async ev=>{ev.preventDefault();if(await run(sb.from("categories").insert({name:$("#cn").value}),"Category added")){await boot();admCats()}};
+  document.querySelectorAll("[data-rn]").forEach(b=>b.onclick=async()=>{const n=prompt("New name");if(!n)return;
+    if(await run(sb.from("categories").update({name:n}).eq("category_id",b.dataset.rn),"Category renamed")){await boot();admCats()}});
+}
+async function admReport(){
+  const {data:o}=await sb.from("orders").select("total,status,order_items(quantity,unit_price,products(name))");
+  const live=(o||[]).filter(x=>x.status!=="Cancelled"), rev=live.reduce((a,x)=>a+Number(x.total),0), by={};
+  live.forEach(x=>x.order_items.forEach(i=>{by[i.products.name]=(by[i.products.name]||0)+i.quantity}));
+  const {data:ps}=await sb.from("products").select("name,stock_quantity").lte("stock_quantity",5).eq("is_active",true).order("stock_quantity");
+  $("#tb").innerHTML=`<div class="stats"><div><b>${inr(rev)}</b>Revenue (excluding cancelled)</div><div><b>${live.length}</b>Orders</div><div><b>${(o||[]).filter(x=>x.status==="Cancelled").length}</b>Cancelled</div></div>
+   <div class="panel"><h3 style="margin-top:0">Units sold by product</h3>${Object.keys(by).length?`<table>${Object.entries(by).sort((a,b)=>b[1]-a[1]).map(([n,q])=>`<tr><td>${e(n)}</td><td>${q}</td></tr>`).join("")}</table>`:`<p class="mute">No sales yet.</p>`}</div>
+   <div class="panel"><h3 style="margin-top:0">Low stock (5 or fewer)</h3>${ps?.length?`<table>${ps.map(p=>`<tr><td>${e(p.name)}</td><td>${p.stock_quantity}</td></tr>`).join("")}</table>`:`<p class="mute">All products are well stocked.</p>`}</div>`;
+}
+
+// ---------- start ----------
+(async()=>{
+  const {data:{session}}=await sb.auth.getSession(); S.user=session?.user||null;
+  sb.auth.onAuthStateChange(async(ev,s)=>{
+    if(ev!=="SIGNED_IN"&&ev!=="SIGNED_OUT")return;
+    const id=s?.user?.id||null; if(id===(S.user?.id||null)&&ev==="SIGNED_IN")return;
+    S.user=s?.user||null; await boot(); route()});
+  await boot(); route();
+})();
+</script>
+</body>
+</html>
